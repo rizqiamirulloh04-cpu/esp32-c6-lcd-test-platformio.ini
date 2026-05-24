@@ -1,0 +1,1 @@
+# esp32-c6-lcd-test-platformio.ini
