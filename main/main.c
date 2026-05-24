@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <string.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -8,10 +7,8 @@
 #include "driver/gpio.h"
 
 #include "esp_err.h"
-#include "esp_log.h"
 
 #include "esp_lcd_panel_io.h"
-#include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_panel_ops.h"
 
 #include "Vernon_ST7789T.h"
@@ -26,24 +23,8 @@
 #define PIN_NUM_RST  21
 #define PIN_NUM_BL   22
 
-#define LCD_H_RES 320
-#define LCD_V_RES 172
-
-static const char *TAG = "LCD";
-
-static uint16_t frame_buffer[LCD_H_RES * 40];
-
-static void fill_color(uint16_t color)
-{
-    for (int i = 0; i < LCD_H_RES * 40; i++) {
-        frame_buffer[i] = color;
-    }
-}
-
 void app_main(void)
 {
-    ESP_LOGI(TAG, "LCD START");
-
     // =========================
     // BACKLIGHT
     // =========================
@@ -56,7 +37,6 @@ void app_main(void)
     // =========================
     gpio_reset_pin(PIN_NUM_RST);
     gpio_set_direction(PIN_NUM_RST, GPIO_MODE_OUTPUT);
-    gpio_set_level(PIN_NUM_RST, 1);
 
     // =========================
     // SPI BUS
@@ -67,8 +47,7 @@ void app_main(void)
         .miso_io_num = -1,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz =
-            LCD_H_RES * 40 * sizeof(uint16_t),
+        .max_transfer_sz = 320 * 172 * 2,
     };
 
     ESP_ERROR_CHECK(
@@ -87,7 +66,7 @@ void app_main(void)
     esp_lcd_panel_io_spi_config_t io_config = {
         .dc_gpio_num = PIN_NUM_DC,
         .cs_gpio_num = PIN_NUM_CS,
-        .pclk_hz = 40000000,
+        .pclk_hz = 10000000,
         .lcd_cmd_bits = 8,
         .lcd_param_bits = 8,
         .spi_mode = 0,
@@ -103,7 +82,7 @@ void app_main(void)
     );
 
     // =========================
-    // PANEL CONFIG
+    // PANEL
     // =========================
     esp_lcd_panel_handle_t panel_handle = NULL;
 
@@ -135,35 +114,6 @@ void app_main(void)
     );
 
     // =========================
-    // OFFSET LCD WAVESHARE
-    // =========================
-    ESP_ERROR_CHECK(
-        esp_lcd_panel_set_gap(
-            panel_handle,
-            0,
-            34
-        )
-    );
-
-    // =========================
-    // LANDSCAPE MODE
-    // =========================
-    ESP_ERROR_CHECK(
-        esp_lcd_panel_swap_xy(
-            panel_handle,
-            true
-        )
-    );
-
-    ESP_ERROR_CHECK(
-        esp_lcd_panel_mirror(
-            panel_handle,
-            false,
-            true
-        )
-    );
-
-    // =========================
     // DISPLAY ON
     // =========================
     ESP_ERROR_CHECK(
@@ -174,46 +124,26 @@ void app_main(void)
     );
 
     // =========================
-    // TEST DISPLAY
+    // FULL RED TEST
     // =========================
+    static uint16_t buf[320 * 172];
+
+    for (int i = 0; i < (320 * 172); i++) {
+        buf[i] = 0xF800;
+    }
+
+    ESP_ERROR_CHECK(
+        esp_lcd_panel_draw_bitmap(
+            panel_handle,
+            0,
+            0,
+            320,
+            172,
+            buf
+        )
+    );
+
     while (1) {
-
-        // MERAH
-        fill_color(0xF800);
-
-        esp_lcd_panel_draw_bitmap(
-            panel_handle,
-            0,
-            0,
-            320,
-            40,
-            frame_buffer
-        );
-
-        // HIJAU
-        fill_color(0x07E0);
-
-        esp_lcd_panel_draw_bitmap(
-            panel_handle,
-            0,
-            40,
-            320,
-            80,
-            frame_buffer
-        );
-
-        // BIRU
-        fill_color(0x001F);
-
-        esp_lcd_panel_draw_bitmap(
-            panel_handle,
-            0,
-            80,
-            320,
-            120,
-            frame_buffer
-        );
-
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
