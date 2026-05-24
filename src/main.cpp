@@ -1,49 +1,52 @@
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
 
-#define TFT_BL   15
-
-#define TFT_MOSI 6
-#define TFT_SCLK 7
-#define TFT_DC   8
-#define TFT_RST  9
-#define TFT_CS   14
+#define GFX_BL 15
 
 Arduino_DataBus *bus = new Arduino_ESP32SPI(
-    TFT_DC,
-    TFT_CS,
-    TFT_SCLK,
-    TFT_MOSI,
-    GFX_NOT_DEFINED
+    8,   // DC
+    14,  // CS
+    7,   // SCK
+    6,   // MOSI
+    GFX_NOT_DEFINED // MISO
 );
 
 Arduino_GFX *gfx = new Arduino_ST7789(
     bus,
-    TFT_RST,
-    0,
-    true,
-    172,
-    320
+    9,    // RST
+    0,    // rotation
+    true, // IPS
+    172,  // width
+    320   // height
 );
 
 void setup()
 {
-    pinMode(TFT_BL, OUTPUT);
-    digitalWrite(TFT_BL, HIGH);
-
     Serial.begin(115200);
 
-    gfx->begin();
+    pinMode(GFX_BL, OUTPUT);
+    digitalWrite(GFX_BL, HIGH);
 
-    gfx->fillScreen(0x0000);
+    delay(200);
 
+    if (!gfx->begin())
+    {
+        Serial.println("gfx->begin failed");
+        while (1);
+    }
+
+    gfx->fillScreen(BLACK);
+
+    gfx->setTextColor(WHITE);
+    gfx->setTextSize(2);
     gfx->setCursor(20, 80);
-    gfx->setTextColor(0xFFFF);
-    gfx->setTextSize(3);
 
     gfx->println("RC Dashboard");
 
-    gfx->drawRect(0, 0, 172, 320, 0xF800);
+    gfx->setCursor(20, 120);
+    gfx->println("ESP32-C6 OK");
+
+    Serial.println("Display OK");
 }
 
 void loop()
