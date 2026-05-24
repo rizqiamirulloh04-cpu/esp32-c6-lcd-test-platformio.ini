@@ -1,13 +1,13 @@
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
 
-#define TFT_BL    22
+#define TFT_BL   22
 
-#define TFT_MOSI  6
-#define TFT_SCLK  7
-#define TFT_CS    14
-#define TFT_DC    15
-#define TFT_RST   21
+#define TFT_MOSI 6
+#define TFT_SCLK 7
+#define TFT_DC   15
+#define TFT_RST  21
+#define TFT_CS   14
 
 Arduino_DataBus *bus = new Arduino_ESP32SPI(
     TFT_DC,
@@ -17,6 +17,7 @@ Arduino_DataBus *bus = new Arduino_ESP32SPI(
     GFX_NOT_DEFINED
 );
 
+// offset X=34 biasanya untuk LCD 1.47 Waveshare
 Arduino_GFX *gfx = new Arduino_ST7789(
     bus,
     TFT_RST,
@@ -25,37 +26,34 @@ Arduino_GFX *gfx = new Arduino_ST7789(
     172,
     320,
     34,
-    0,
-    34,
     0
 );
 
 void setup()
 {
-    Serial.begin(115200);
-
     pinMode(TFT_BL, OUTPUT);
     digitalWrite(TFT_BL, HIGH);
 
+    Serial.begin(115200);
+
     gfx->begin();
+    gfx->setRotation(1);
 
-    gfx->fillScreen(0x0000);
+    gfx->fillScreen(BLACK);
 
-    // BORDER TEST
-    gfx->drawRect(0, 0, 172, 320, 0xFFFF);
+    // border full layar
+    gfx->drawRect(0, 0, 320, 172, WHITE);
 
-    // CENTER LINE
-    gfx->drawLine(0, 160, 172, 160, 0xF800);
+    gfx->setTextSize(3);
+    gfx->setTextColor(GREEN);
 
-    // TEXT
-    gfx->setTextColor(0x07E0);
-    gfx->setTextSize(2);
-
-    gfx->setCursor(20, 40);
+    gfx->setCursor(40, 50);
     gfx->println("LAYAR OK");
 
-    gfx->setCursor(20, 80);
+    gfx->setCursor(40, 100);
     gfx->println("ROTASI 1");
+
+    gfx->drawLine(0, 171, 319, 171, RED);
 }
 
 void loop()
