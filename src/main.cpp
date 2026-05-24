@@ -20,7 +20,7 @@ Arduino_DataBus *bus = new Arduino_ESP32SPI(
 Arduino_GFX *gfx = new Arduino_ST7789(
     bus,
     TFT_RST,
-    0,
+    1,
     true,
     172,
     320,
@@ -35,37 +35,27 @@ void setup()
     Serial.begin(115200);
 
     pinMode(TFT_BL, OUTPUT);
-
-    // coba HIGH dulu
     digitalWrite(TFT_BL, HIGH);
 
-    delay(200);
-
-    gfx->begin(40000000);
-
-    gfx->setRotation(1);
+    gfx->begin();
 
     gfx->fillScreen(0x0000);
 
-    delay(500);
+    // BORDER TEST
+    gfx->drawRect(0, 0, 172, 320, 0xFFFF);
 
-    gfx->fillScreen(0xF800);
-    delay(1000);
+    // CENTER LINE
+    gfx->drawLine(0, 160, 172, 160, 0xF800);
 
-    gfx->fillScreen(0x07E0);
-    delay(1000);
-
-    gfx->fillScreen(0x001F);
-    delay(1000);
-
-    gfx->fillScreen(0x0000);
+    // TEXT
+    gfx->setTextColor(0x07E0);
+    gfx->setTextSize(2);
 
     gfx->setCursor(20, 40);
-    gfx->setTextColor(0xFFFF);
-    gfx->setTextSize(3);
+    gfx->println("LAYAR OK");
 
-    gfx->println("RC");
-    gfx->println("DASHBOARD");
+    gfx->setCursor(20, 80);
+    gfx->println("ROTASI 1");
 }
 
 void loop()
