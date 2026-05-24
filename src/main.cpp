@@ -26,22 +26,30 @@ Arduino_GFX *gfx = new Arduino_ST7789(
     320,    // height
     34,     // col offset 1
     0,      // row offset 1
-    34,     // col offset 2
+    0,      // col offset 2
     0       // row offset 2
 );
 
 void setup()
 {
+    Serial.begin(115200);
+
     pinMode(TFT_BL, OUTPUT);
     digitalWrite(TFT_BL, HIGH);
 
     gfx->begin();
 
-    // warna background
+    // background hitam
     gfx->fillScreen(0x0000);
 
-    // frame putih
+    // border putih full layar
     gfx->drawRect(0, 0, 172, 320, 0xFFFF);
+
+    // garis tengah biru
+    gfx->drawLine(0, 160, 171, 160, 0x001F);
+
+    // garis bawah merah
+    gfx->drawLine(0, 319, 171, 319, 0xF800);
 
     // text hijau
     gfx->setTextColor(0x07E0);
@@ -51,10 +59,10 @@ void setup()
     gfx->println("LAYAR OK");
 
     gfx->setCursor(20, 80);
-    gfx->println("ROTASI 1");
+    gfx->println("OFFSET FIX");
 
-    // garis merah bawah
-    gfx->drawLine(0, 319, 171, 319, 0xF800);
+    gfx->setCursor(20, 120);
+    gfx->println("ROTASI 1");
 }
 
 void loop()
