@@ -20,12 +20,10 @@ Arduino_DataBus *bus = new Arduino_ESP32SPI(
 Arduino_GFX *gfx = new Arduino_ST7789(
     bus,
     TFT_RST,
-    0,
+    1,
     true,
     172,
-    320,
-    34,
-    0
+    320
 );
 
 void setup()
@@ -33,18 +31,23 @@ void setup()
     pinMode(TFT_BL, OUTPUT);
     digitalWrite(TFT_BL, HIGH);
 
+    Serial.begin(115200);
+
     gfx->begin();
+    gfx->fillScreen(0x0000);
 
-    gfx->fillScreen(BLACK16);
+    gfx->setRotation(1);
 
-    gfx->setCursor(40, 100);
-    gfx->setTextColor(WHITE16);
-    gfx->setTextSize(3);
-    gfx->println("RC Dashboard");
-
-    gfx->setCursor(60, 150);
+    gfx->setCursor(20, 40);
     gfx->setTextSize(2);
+    gfx->setTextColor(0xFFFF);
+
     gfx->println("ESP32-C6");
+    gfx->println("LCD TEST");
+
+    gfx->fillRect(20, 100, 80, 40, 0xF800);
+    gfx->fillRect(120, 100, 80, 40, 0x07E0);
+    gfx->fillRect(220, 100, 80, 40, 0x001F);
 }
 
 void loop()
