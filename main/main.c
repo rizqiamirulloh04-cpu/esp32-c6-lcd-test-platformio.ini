@@ -15,7 +15,7 @@
 
 #define LCD_HOST SPI2_HOST
 
-// PIN WAVESHARE ESP32-C6 LCD 1.47
+// WAVESHARE ESP32-C6 LCD 1.47
 #define PIN_NUM_MOSI 6
 #define PIN_NUM_CLK  7
 #define PIN_NUM_CS   14
@@ -60,10 +60,10 @@ void app_main(void)
     esp_lcd_panel_io_spi_config_t io_config = {
         .dc_gpio_num = PIN_NUM_DC,
         .cs_gpio_num = PIN_NUM_CS,
-        .pclk_hz = 40000000,
+        .pclk_hz = 20000000,
         .lcd_cmd_bits = 8,
         .lcd_param_bits = 8,
-        .spi_mode = 0,
+        .spi_mode = 3,
         .trans_queue_depth = 10,
     };
 
@@ -99,19 +99,6 @@ void app_main(void)
         esp_lcd_panel_init(panel_handle)
     );
 
-    // LANDSCAPE
-    ESP_ERROR_CHECK(
-        esp_lcd_panel_swap_xy(panel_handle, true)
-    );
-
-    ESP_ERROR_CHECK(
-        esp_lcd_panel_mirror(panel_handle, true, false)
-    );
-
-    ESP_ERROR_CHECK(
-        esp_lcd_panel_set_gap(panel_handle, 34, 0)
-    );
-
     ESP_ERROR_CHECK(
         esp_lcd_panel_disp_on_off(panel_handle, true)
     );
@@ -125,12 +112,10 @@ void app_main(void)
             panel_handle,
             0,
             0,
-            LCD_H_RES,
-            20,
+            320,
+            40,
             frame_buffer
         );
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
 
         // HIJAU
         fill_color(0x07E0);
@@ -138,13 +123,11 @@ void app_main(void)
         esp_lcd_panel_draw_bitmap(
             panel_handle,
             0,
-            20,
-            LCD_H_RES,
             40,
+            320,
+            80,
             frame_buffer
         );
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
 
         // BIRU
         fill_color(0x001F);
@@ -152,9 +135,9 @@ void app_main(void)
         esp_lcd_panel_draw_bitmap(
             panel_handle,
             0,
-            40,
-            LCD_H_RES,
-            60,
+            80,
+            320,
+            120,
             frame_buffer
         );
 
