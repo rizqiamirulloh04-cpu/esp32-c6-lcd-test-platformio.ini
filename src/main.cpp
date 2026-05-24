@@ -1,62 +1,73 @@
 #include <Arduino.h>
-#include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_ST7789.h>
+#include <Arduino_GFX_Library.h>
+
+#define TFT_BL    22
 
 #define TFT_MOSI  6
 #define TFT_SCLK  7
 #define TFT_CS    14
 #define TFT_DC    15
 #define TFT_RST   21
-#define TFT_BL    22
 
-SPIClass spi = SPIClass(FSPI);
+Arduino_DataBus *bus = new Arduino_ESP32SPI(
+    TFT_DC,
+    TFT_CS,
+    TFT_SCLK,
+    TFT_MOSI,
+    GFX_NOT_DEFINED
+);
 
-Adafruit_ST7789 tft = Adafruit_ST7789(&spi, TFT_CS, TFT_DC, TFT_RST);
+Arduino_GFX *gfx = new Arduino_ST7789(
+    bus,
+    TFT_RST,
+    0,
+    true,
+    172,
+    320,
+    34,
+    0,
+    34,
+    0
+);
 
-void setup() {
+void setup()
+{
+    Serial.begin(115200);
 
-  Serial.begin(115200);
+    pinMode(TFT_BL, OUTPUT);
 
-  // Backlight
-  pinMode(TFT_BL, OUTPUT);
-  digitalWrite(TFT_BL, HIGH);
+    // coba HIGH dulu
+    digitalWrite(TFT_BL, HIGH);
 
-  // SPI LCD
-  spi.begin(TFT_SCLK, -1, TFT_MOSI, TFT_CS);
+    delay(200);
 
-  // Init LCD
-  tft.init(172, 320);
+    gfx->begin(40000000);
 
-  tft.setRotation(1);
+    gfx->setRotation(1);
 
-  // Offset penting untuk 1.47"
-  tft.setAddrWindow(34, 0, 172, 320);
+    gfx->fillScreen(0x0000);
 
-  // Test warna
-  tft.fillScreen(ST77XX_RED);
-  delay(1000);
+    delay(500);
 
-  tft.fillScreen(ST77XX_GREEN);
-  delay(1000);
+    gfx->fillScreen(0xF800);
+    delay(1000);
 
-  tft.fillScreen(ST77XX_BLUE);
-  delay(1000);
+    gfx->fillScreen(0x07E0);
+    delay(1000);
 
-  tft.fillScreen(ST77XX_BLACK);
+    gfx->fillScreen(0x001F);
+    delay(1000);
 
-  // Text
-  tft.setTextColor(ST77XX_WHITE);
-  tft.setTextSize(2);
+    gfx->fillScreen(0x0000);
 
-  tft.setCursor(20, 40);
-  tft.println("RC DASHBOARD");
+    gfx->setCursor(20, 40);
+    gfx->setTextColor(0xFFFF);
+    gfx->setTextSize(3);
 
-  tft.setCursor(20, 80);
-  tft.println("ESP32-C6");
-
-  tft.drawRect(5, 5, 310, 160, ST77XX_WHITE);
+    gfx->println("RC");
+    gfx->println("DASHBOARD");
 }
 
-void loop() {
+void loop()
+{
 }
