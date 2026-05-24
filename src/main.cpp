@@ -20,14 +20,12 @@ Arduino_DataBus *bus = new Arduino_ESP32SPI(
 Arduino_GFX *gfx = new Arduino_ST7789(
     bus,
     TFT_RST,
-    1,      // rotation
-    true,   // IPS
-    172,    // width
-    320,    // height
-    34,     // col offset 1
-    0,      // row offset 1
-    0,      // col offset 2
-    0       // row offset 2
+    1,
+    true,
+    172,
+    320,
+    34,
+    0
 );
 
 void setup()
@@ -39,30 +37,28 @@ void setup()
 
     gfx->begin();
 
-    // background hitam
-    gfx->fillScreen(0x0000);
+    gfx->fillScreen(BLACK);
 
-    // border putih full layar
-    gfx->drawRect(0, 0, 172, 320, 0xFFFF);
+    gfx->setRotation(1);
 
-    // garis tengah biru
-    gfx->drawLine(0, 160, 171, 160, 0x001F);
+    gfx->drawRect(0, 0, gfx->width(), gfx->height(), WHITE);
 
-    // garis bawah merah
-    gfx->drawLine(0, 319, 171, 319, 0xF800);
-
-    // text hijau
-    gfx->setTextColor(0x07E0);
+    gfx->setTextColor(GREEN);
     gfx->setTextSize(2);
 
     gfx->setCursor(20, 40);
-    gfx->println("LAYAR OK");
+    gfx->println("WAVESHARE");
 
     gfx->setCursor(20, 80);
-    gfx->println("OFFSET FIX");
+    gfx->println("ESP32-C6");
 
     gfx->setCursor(20, 120);
-    gfx->println("ROTASI 1");
+    gfx->println("LCD TEST");
+
+    gfx->drawLine(0, gfx->height() - 1,
+                  gfx->width() - 1,
+                  gfx->height() - 1,
+                  RED);
 }
 
 void loop()
