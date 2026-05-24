@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -11,18 +13,32 @@
 
 #include "Vernon_ST7789T.h"
 
-#define PIN_NUM_MOSI  6
-#define PIN_NUM_CLK   7
-#define PIN_NUM_CS    14
-#define PIN_NUM_DC    15
-#define PIN_NUM_RST   21
-#define PIN_NUM_BL    22
+#define LCD_HOST SPI2_HOST
 
-#define LCD_H_RES     320
-#define LCD_V_RES     172
+// PIN WAVESHARE ESP32-C6 LCD 1.47
+#define PIN_NUM_MOSI 6
+#define PIN_NUM_CLK  7
+#define PIN_NUM_CS   14
+#define PIN_NUM_DC   15
+#define PIN_NUM_RST  21
+#define PIN_NUM_BL   22
+
+#define LCD_H_RES 320
+#define LCD_V_RES 172
+
+static uint16_t frame_buffer[LCD_H_RES * 20];
+
+void fill_color(uint16_t color)
+{
+    for (int i = 0; i < LCD_H_RES * 20; i++) {
+        frame_buffer[i] = color;
+    }
+}
 
 void app_main(void)
 {
+    printf("LCD START\n");
+
     gpio_set_direction(PIN_NUM_BL, GPIO_MODE_OUTPUT);
     gpio_set_level(PIN_NUM_BL, 1);
 
@@ -32,10 +48,12 @@ void app_main(void)
         .miso_io_num = -1,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = LCD_H_RES * 80 * sizeof(uint16_t),
+        .max_transfer_sz = LCD_H_RES * 20 * sizeof(uint16_t),
     };
 
-    spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
+    ESP_ERROR_CHECK(
+        spi_bus_initialize(LCD_HOST, &buscfg, SPI_DMA_CH_AUTO)
+    );
 
     esp_lcd_panel_io_handle_t io_handle = NULL;
 
@@ -49,10 +67,12 @@ void app_main(void)
         .trans_queue_depth = 10,
     };
 
-    esp_lcd_new_panel_io_spi(
-        (esp_lcd_spi_bus_handle_t)SPI2_HOST,
-        &io_config,
-        &io_handle
+    ESP_ERROR_CHECK(
+        esp_lcd_new_panel_io_spi(
+            (esp_lcd_spi_bus_handle_t)LCD_HOST,
+            &io_config,
+            &io_handle
+        )
     );
 
     esp_lcd_panel_handle_t panel_handle = NULL;
@@ -63,29 +83,43 @@ void app_main(void)
         .bits_per_pixel = 16,
     };
 
-    esp_lcd_new_panel_st7789t(
-        io_handle,
-        &panel_config,
-        &panel_handle
+    ESP_ERROR_CHECK(
+        esp_lcd_new_panel_st7789t(
+            io_handle,
+            &panel_config,
+            &panel_handle
+        )
     );
 
-    esp_lcd_panel_reset(panel_handle);
-    esp_lcd_panel_init(panel_handle);
+    ESP_ERROR_CHECK(
+        esp_lcd_panel_reset(panel_handle)
+    );
+
+    ESP_ERROR_CHECK(
+        esp_lcd_panel_init(panel_handle)
+    );
 
     // LANDSCAPE
-    esp_lcd_panel_swap_xy(panel_handle, true);
-    esp_lcd_panel_mirror(panel_handle, true, false);
-    esp_lcd_panel_set_gap(panel_handle, 35, 0);
+    ESP_ERROR_CHECK(
+        esp_lcd_panel_swap_xy(panel_handle, true)
+    );
 
-    esp_lcd_panel_disp_on_off(panel_handle, true);
+    ESP_ERROR_CHECK(
+        esp_lcd_panel_mirror(panel_handle, true, false)
+    );
 
-    static uint16_t buffer[LCD_H_RES * 20];
+    ESP_ERROR_CHECK(
+        esp_lcd_panel_set_gap(panel_handle, 34, 0)
+    );
+
+    ESP_ERROR_CHECK(
+        esp_lcd_panel_disp_on_off(panel_handle, true)
+    );
 
     while (1) {
 
-        for (int i = 0; i < LCD_H_RES * 20; i++) {
-            buffer[i] = 0xF800;
-        }
+        // MERAH
+        fill_color(0xF800);
 
         esp_lcd_panel_draw_bitmap(
             panel_handle,
@@ -93,14 +127,13 @@ void app_main(void)
             0,
             LCD_H_RES,
             20,
-            buffer
+            frame_buffer
         );
 
         vTaskDelay(pdMS_TO_TICKS(1000));
 
-        for (int i = 0; i < LCD_H_RES * 20; i++) {
-            buffer[i] = 0x07E0;
-        }
+        // HIJAU
+        fill_color(0x07E0);
 
         esp_lcd_panel_draw_bitmap(
             panel_handle,
@@ -108,14 +141,13 @@ void app_main(void)
             20,
             LCD_H_RES,
             40,
-            buffer
+            frame_buffer
         );
 
         vTaskDelay(pdMS_TO_TICKS(1000));
 
-        for (int i = 0; i < LCD_H_RES * 20; i++) {
-            buffer[i] = 0x001F;
-        }
+        // BIRU
+        fill_color(0x001F);
 
         esp_lcd_panel_draw_bitmap(
             panel_handle,
@@ -123,7 +155,7 @@ void app_main(void)
             40,
             LCD_H_RES,
             60,
-            buffer
+            frame_buffer
         );
 
         vTaskDelay(pdMS_TO_TICKS(1000));
