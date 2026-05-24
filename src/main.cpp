@@ -1,75 +1,64 @@
 #include <Arduino.h>
-#include <Arduino_GFX_Library.h>
+#include <SPI.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_ST7789.h>
 
-#define GFX_BL 15
+#define TFT_BL    15
 
-// SPI LCD
+#define TFT_MOSI  6
+#define TFT_SCLK  7
 #define TFT_CS    14
 #define TFT_DC    8
 #define TFT_RST   9
-#define TFT_SCLK  7
-#define TFT_MOSI  6
 
-Arduino_DataBus *bus = new Arduino_ESP32SPI(
-    TFT_DC,
-    TFT_CS,
-    TFT_SCLK,
-    TFT_MOSI,
-    GFX_NOT_DEFINED
+Adafruit_ST7789 tft = Adafruit_ST7789(
+  TFT_CS,
+  TFT_DC,
+  TFT_RST
 );
 
-Arduino_GFX *gfx = new Arduino_ST7789(
-    bus,
-    TFT_RST,
-    0,
-    true,
-    172,
-    320,
-    34,
-    0,
-    34,
-    0
-);
+void setup() {
 
-void setup()
-{
-    Serial.begin(115200);
+  Serial.begin(115200);
 
-    pinMode(GFX_BL, OUTPUT);
-    digitalWrite(GFX_BL, HIGH);
+  pinMode(TFT_BL, OUTPUT);
 
-    delay(200);
+  // coba HIGH dulu
+  digitalWrite(TFT_BL, HIGH);
 
-    gfx->begin(40000000);
+  SPI.begin(TFT_SCLK, -1, TFT_MOSI, TFT_CS);
 
-    gfx->setRotation(1);
+  tft.init(172, 320);
 
-    gfx->fillScreen(0x0000);
+  tft.setRotation(1);
 
-    delay(500);
+  tft.fillScreen(ST77XX_BLACK);
 
-    gfx->fillScreen(0xF800);
-    delay(1000);
+  delay(500);
 
-    gfx->fillScreen(0x07E0);
-    delay(1000);
+  tft.fillScreen(ST77XX_RED);
+  delay(1000);
 
-    gfx->fillScreen(0x001F);
-    delay(1000);
+  tft.fillScreen(ST77XX_GREEN);
+  delay(1000);
 
-    gfx->fillScreen(0x0000);
+  tft.fillScreen(ST77XX_BLUE);
+  delay(1000);
 
-    gfx->setTextColor(0xFFFF);
-    gfx->setTextSize(3);
-    gfx->setCursor(20, 40);
-    gfx->println("WAVESHARE");
+  tft.fillScreen(ST77XX_BLACK);
 
-    gfx->setCursor(20, 90);
-    gfx->println("ESP32-C6");
+  tft.setTextColor(ST77XX_WHITE);
+  tft.setTextSize(2);
 
-    gfx->drawRect(10, 10, 300, 150, 0xFFFF);
+  tft.setCursor(20, 40);
+  tft.println("HELLO");
+
+  tft.setCursor(20, 70);
+  tft.println("ESP32-C6");
+
+  tft.drawRect(5, 5, 310, 160, ST77XX_WHITE);
 }
 
-void loop()
-{
+void loop() {
+
 }
