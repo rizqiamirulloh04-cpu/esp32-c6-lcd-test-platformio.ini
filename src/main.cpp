@@ -24,7 +24,7 @@ void setup() {
   pinMode(TFT_BL, OUTPUT);
 
   // coba HIGH dulu
-  digitalWrite(TFT_BL, HIGH);
+  digitalWrite(TFT_BL, LOW);
 
   SPI.begin(TFT_SCLK, -1, TFT_MOSI, TFT_CS);
 
