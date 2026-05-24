@@ -1,4 +1,4 @@
-name: Build ESP32 Firmware
+name: Build Firmware
 
 on:
   push:
@@ -23,8 +23,11 @@ jobs:
       - name: Build
         run: pio run
 
-      - name: Upload BIN
+      - name: Upload Firmware Files
         uses: actions/upload-artifact@v4
         with:
-          name: firmware
-          path: .pio/build/esp32c6/firmware.bin
+          name: esp32c6-firmware
+          path: |
+            .pio/build/esp32c6/bootloader.bin
+            .pio/build/esp32c6/partitions.bin
+            .pio/build/esp32c6/firmware.bin
