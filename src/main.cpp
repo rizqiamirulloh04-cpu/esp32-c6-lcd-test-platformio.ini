@@ -31,18 +31,19 @@ void setup()
     pinMode(TFT_BL, OUTPUT);
     digitalWrite(TFT_BL, HIGH);
 
+    Serial.begin(115200);
+
     gfx->begin();
 
-    gfx->fillScreen(BLACK);
+    gfx->fillScreen(0x0000);
 
-    gfx->setCursor(20, 40);
-    gfx->setTextColor(WHITE);
+    gfx->setCursor(20, 80);
+    gfx->setTextColor(0xFFFF);
     gfx->setTextSize(3);
+
     gfx->println("RC Dashboard");
 
-    gfx->setCursor(20, 90);
-    gfx->setTextSize(2);
-    gfx->println("ESP32-C6 OK");
+    gfx->drawRect(0, 0, 172, 320, 0xF800);
 }
 
 void loop()
